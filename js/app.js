@@ -181,7 +181,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const heroVisual = document.querySelector(".hero-visual");
 const portraitShell = document.querySelector(".portrait-shell");
 
-if (heroVisual && portraitShell && !reduceMotion.matches) {
+if (heroVisual && portraitShell) {
   heroVisual.addEventListener("pointermove", (event) => {
     const rect = heroVisual.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
@@ -197,7 +197,7 @@ if (heroVisual && portraitShell && !reduceMotion.matches) {
 }
 
 const particleCanvas = document.querySelector(".particle-canvas");
-if (particleCanvas && !reduceMotion.matches) {
+if (particleCanvas) {
   const ctx = particleCanvas.getContext("2d");
   const particles = [];
   const colors = ["47, 124, 255", "138, 63, 252", "32, 242, 229"];
@@ -275,14 +275,8 @@ if (particleCanvas && !reduceMotion.matches) {
   resizeCanvas();
   drawParticles();
 
-  reduceMotion.addEventListener("change", (event) => {
-    if (event.matches) {
-      cancelAnimationFrame(animationFrame);
-      ctx.clearRect(0, 0, width, height);
-    } else {
-      resizeCanvas();
-      drawParticles();
-    }
+  reduceMotion.addEventListener("change", () => {
+    resizeCanvas();
   });
 }
 
