@@ -420,8 +420,8 @@ h1 strong,
   z-index: 1;
   content: "";
   background:
-    linear-gradient(90deg, rgba(5, 7, 13, 0.82), transparent 22%),
-    linear-gradient(0deg, rgba(5, 7, 13, 0.72), transparent 42%);
+    linear-gradient(90deg, rgba(5, 7, 13, 0.36), transparent 28%),
+    linear-gradient(0deg, rgba(5, 7, 13, 0.42), transparent 38%);
   pointer-events: none;
 }
 
