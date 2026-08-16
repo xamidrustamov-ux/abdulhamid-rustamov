@@ -164,4 +164,126 @@ const revealObserver = new IntersectionObserver(
 
 document.querySelectorAll("[data-reveal]").forEach((node) => revealObserver.observe(node));
 
+const flowSection = document.querySelector("[data-flow]");
+if (flowSection) {
+  const flowObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        flowSection.classList.toggle("is-flowing", entry.isIntersecting);
+      });
+    },
+    { threshold: 0.35 }
+  );
+  flowObserver.observe(flowSection);
+}
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const heroVisual = document.querySelector(".hero-visual");
+const portraitShell = document.querySelector(".portrait-shell");
+
+if (heroVisual && portraitShell && !reduceMotion.matches) {
+  heroVisual.addEventListener("pointermove", (event) => {
+    const rect = heroVisual.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * -6;
+    portraitShell.style.setProperty("--tilt-x", `${x.toFixed(2)}deg`);
+    portraitShell.style.setProperty("--tilt-y", `${y.toFixed(2)}deg`);
+  });
+
+  heroVisual.addEventListener("pointerleave", () => {
+    portraitShell.style.setProperty("--tilt-x", "0deg");
+    portraitShell.style.setProperty("--tilt-y", "0deg");
+  });
+}
+
+const particleCanvas = document.querySelector(".particle-canvas");
+if (particleCanvas && !reduceMotion.matches) {
+  const ctx = particleCanvas.getContext("2d");
+  const particles = [];
+  const colors = ["47, 124, 255", "138, 63, 252", "32, 242, 229"];
+  let width = 0;
+  let height = 0;
+  let animationFrame = 0;
+
+  function resizeCanvas() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    particleCanvas.width = Math.floor(width * ratio);
+    particleCanvas.height = Math.floor(height * ratio);
+    particleCanvas.style.width = `${width}px`;
+    particleCanvas.style.height = `${height}px`;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    buildParticles();
+  }
+
+  function buildParticles() {
+    particles.length = 0;
+    const count = Math.min(80, Math.max(38, Math.floor(width / 22)));
+    for (let index = 0; index < count; index += 1) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: (Math.random() - 0.5) * 0.18,
+        radius: Math.random() * 1.8 + 0.8,
+        color: colors[index % colors.length]
+      });
+    }
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, width, height);
+
+    particles.forEach((particle, index) => {
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+
+      if (particle.x < -20) particle.x = width + 20;
+      if (particle.x > width + 20) particle.x = -20;
+      if (particle.y < -20) particle.y = height + 20;
+      if (particle.y > height + 20) particle.y = -20;
+
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${particle.color}, 0.62)`;
+      ctx.shadowColor = `rgba(${particle.color}, 0.72)`;
+      ctx.shadowBlur = 10;
+      ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      for (let nextIndex = index + 1; nextIndex < particles.length; nextIndex += 1) {
+        const next = particles[nextIndex];
+        const dx = particle.x - next.x;
+        const dy = particle.y - next.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(${particle.color}, ${0.18 * (1 - distance / 120)})`;
+          ctx.lineWidth = 1;
+          ctx.moveTo(particle.x, particle.y);
+          ctx.lineTo(next.x, next.y);
+          ctx.stroke();
+        }
+      }
+    });
+
+    ctx.shadowBlur = 0;
+    animationFrame = requestAnimationFrame(drawParticles);
+  }
+
+  window.addEventListener("resize", resizeCanvas, { passive: true });
+  resizeCanvas();
+  drawParticles();
+
+  reduceMotion.addEventListener("change", (event) => {
+    if (event.matches) {
+      cancelAnimationFrame(animationFrame);
+      ctx.clearRect(0, 0, width, height);
+    } else {
+      resizeCanvas();
+      drawParticles();
+    }
+  });
+}
+
 setLanguage(localStorage.getItem("site-language") || "ru");

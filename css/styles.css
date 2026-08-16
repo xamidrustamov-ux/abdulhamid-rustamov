@@ -57,6 +57,23 @@ body::after {
   background: linear-gradient(180deg, rgba(5, 7, 13, 0.05), rgba(5, 7, 13, 0.92));
 }
 
+.particle-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.62;
+}
+
+.site-header,
+main,
+.footer {
+  position: relative;
+  z-index: 1;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -64,7 +81,7 @@ a {
 
 .page-orbit {
   position: fixed;
-  z-index: -1;
+  z-index: 0;
   width: 28rem;
   height: 28rem;
   border: 1px solid rgba(32, 242, 229, 0.12);
@@ -78,12 +95,14 @@ a {
   top: 6rem;
   right: 6vw;
   box-shadow: inset 0 0 70px rgba(47, 124, 255, 0.11), 0 0 60px rgba(138, 63, 252, 0.12);
+  animation: orbitDrift 16s ease-in-out infinite;
 }
 
 .page-orbit-two {
   bottom: 8rem;
   left: -12rem;
   border-color: rgba(216, 92, 255, 0.14);
+  animation: orbitDrift 20s ease-in-out infinite reverse;
 }
 
 .site-header {
@@ -314,6 +333,8 @@ h1 strong,
 }
 
 .button {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -329,9 +350,26 @@ h1 strong,
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 }
 
+.button::after {
+  position: absolute;
+  inset: -40% auto -40% -55%;
+  width: 42%;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  opacity: 0;
+  transform: skewX(-18deg);
+  transition: opacity 180ms ease;
+}
+
 .button:hover,
 .button:focus-visible {
   transform: translateY(-3px);
+}
+
+.button:hover::after,
+.button:focus-visible::after {
+  opacity: 0.58;
+  animation: buttonShine 850ms ease;
 }
 
 .button-primary {
@@ -399,6 +437,7 @@ h1 strong,
 .hero-visual {
   position: relative;
   min-height: 34rem;
+  perspective: 900px;
 }
 
 .portrait-shell {
@@ -412,6 +451,23 @@ h1 strong,
     rgba(8, 12, 23, 0.66);
   box-shadow: var(--shadow), 0 0 70px rgba(47, 124, 255, 0.16);
   backdrop-filter: blur(18px);
+  transform: rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg));
+  transition: transform 260ms ease, box-shadow 260ms ease;
+  will-change: transform;
+}
+
+.portrait-shell::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  content: "";
+  background:
+    linear-gradient(115deg, transparent 0 42%, rgba(32, 242, 229, 0.18) 47%, transparent 53% 100%),
+    repeating-linear-gradient(180deg, transparent 0 18px, rgba(47, 124, 255, 0.07) 19px, transparent 20px);
+  opacity: 0.38;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: scanSweep 6s ease-in-out infinite;
 }
 
 .portrait-shell::before {
@@ -432,6 +488,11 @@ h1 strong,
   object-position: center top;
   transform: scale(1.04);
   filter: saturate(1.08) contrast(1.03);
+  transition: transform 500ms ease;
+}
+
+.hero-visual:hover .portrait-shell img {
+  transform: scale(1.075);
 }
 
 .signal-card {
@@ -446,6 +507,7 @@ h1 strong,
   background: rgba(11, 16, 30, 0.72);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
   backdrop-filter: blur(18px);
+  animation: signalFloat 5s ease-in-out infinite;
 }
 
 .signal-card span {
@@ -535,6 +597,11 @@ h1 strong,
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
+.service-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 .service-card::before {
   position: absolute;
   inset: -35% -20% auto auto;
@@ -544,11 +611,65 @@ h1 strong,
   border-radius: 999px;
   filter: blur(16px);
   opacity: 0.38;
+  animation: glowBreath 5.5s ease-in-out infinite;
+}
+
+.service-card::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border-radius: inherit;
+  background: linear-gradient(120deg, transparent 0 24%, rgba(255, 255, 255, 0.22) 32%, transparent 42% 100%);
+  opacity: 0;
+  transform: translateX(-120%);
+  transition: opacity 200ms ease;
+  pointer-events: none;
 }
 
 .service-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.service-card:hover::after {
+  opacity: 0.62;
+  animation: cardSweep 1s ease;
+}
+
+.service-card.is-visible li {
+  animation: listRise 520ms ease both;
+}
+
+.service-card.is-visible li:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.service-card.is-visible li:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.service-card.is-visible li:nth-child(4) {
+  animation-delay: 210ms;
+}
+
+.service-card.is-visible li:nth-child(5) {
+  animation-delay: 280ms;
+}
+
+.service-card.is-visible li:nth-child(6) {
+  animation-delay: 350ms;
+}
+
+.service-card.is-visible li:nth-child(7) {
+  animation-delay: 420ms;
+}
+
+.service-card.is-visible li:nth-child(8) {
+  animation-delay: 490ms;
+}
+
+.service-card.is-visible li:nth-child(9) {
+  animation-delay: 560ms;
 }
 
 .service-card.violet {
@@ -617,6 +738,24 @@ h1 strong,
   opacity: 0.65;
 }
 
+.process-track::after {
+  position: absolute;
+  top: 3rem;
+  left: 8%;
+  width: 84%;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(32, 242, 229, 0.95), transparent);
+  filter: drop-shadow(0 0 12px rgba(32, 242, 229, 0.8));
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+}
+
+.process-section.is-flowing .process-track::after {
+  animation: processFlow 2.8s ease forwards, processPulse 3.5s ease-in-out 2.8s infinite;
+}
+
 .process-step {
   position: relative;
   padding: 0.5rem;
@@ -635,6 +774,23 @@ h1 strong,
   border-radius: 999px;
   background: rgba(8, 12, 23, 0.86);
   box-shadow: 0 0 34px rgba(47, 124, 255, 0.2);
+  animation: stepPulse 4.5s ease-in-out infinite;
+}
+
+.process-step:nth-child(2) span {
+  animation-delay: 0.35s;
+}
+
+.process-step:nth-child(3) span {
+  animation-delay: 0.7s;
+}
+
+.process-step:nth-child(4) span {
+  animation-delay: 1.05s;
+}
+
+.process-step:nth-child(5) span {
+  animation-delay: 1.4s;
 }
 
 .process-step h3 {
@@ -764,6 +920,113 @@ h1 strong,
   }
 }
 
+@keyframes orbitDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.5rem, -1rem, 0) scale(1.06);
+  }
+}
+
+@keyframes buttonShine {
+  from {
+    transform: translateX(0) skewX(-18deg);
+  }
+  to {
+    transform: translateX(430%) skewX(-18deg);
+  }
+}
+
+@keyframes scanSweep {
+  0%,
+  100% {
+    background-position: -120% 0, 0 0;
+    opacity: 0.24;
+  }
+  50% {
+    background-position: 220% 0, 0 18px;
+    opacity: 0.48;
+  }
+}
+
+@keyframes signalFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes glowBreath {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.52;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes cardSweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes listRise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes processFlow {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes processPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(32, 242, 229, 0.55));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(138, 63, 252, 0.8));
+  }
+}
+
+@keyframes stepPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 26px rgba(47, 124, 255, 0.16);
+  }
+  50% {
+    box-shadow: 0 0 38px rgba(32, 242, 229, 0.32), inset 0 0 18px rgba(47, 124, 255, 0.2);
+  }
+}
+
 @media (max-width: 980px) {
   .site-header {
     align-items: flex-start;
@@ -809,6 +1072,20 @@ h1 strong,
     left: 3.45rem;
     width: 1px;
     height: auto;
+  }
+
+  .process-track::after {
+    top: 0;
+    bottom: 0;
+    left: 3.45rem;
+    width: 1px;
+    height: auto;
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  .process-section.is-flowing .process-track::after {
+    animation-name: processFlowMobile, processPulse;
   }
 
   .process-step {
@@ -884,6 +1161,10 @@ h1 strong,
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .particle-canvas {
+    display: none;
+  }
+
   *,
   *::before,
   *::after {
@@ -891,5 +1172,19 @@ h1 strong,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes processFlowMobile {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
   }
 }
